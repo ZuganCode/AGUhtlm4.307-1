@@ -9,3 +9,59 @@ Upon successful completion of the task, the function returns 1.*/
 
 
 int split_HTML(FILE* html, int max_len)
+{
+  /*Dictionary for opening tags*/
+  const char open_tag[8][9] = {"<p>", "<b>", "<i>", "<ol>", "<ul>", "<div>", "<span>", "<strong>" };
+  /*Dictionary for closing tags*/
+  const char close_tag[8][10] = { "</p>", "</b>", "</i>", "</ol>", "</ul>", "</div>", "</span>", "</strong>" };
+  fseek(html, 0, SEEK_SET);
+  char ch;
+  /*The buffer to which the contents of the document will be written. 
+  When the buffer is full, it will be written to an html file*/
+  char output[4098] = "";
+  int ID_output = 0;
+  int len_output = 0;
+  /*Stack for block tags*/
+  char stack[100][100];
+  char tag[500] = "";
+  int ID_tag = 0;
+  int is_tag_open = 0;
+  int len_stack = 0;
+  int count_tag_in_stack = 0;
+  int ID_stack = 0;
+  int number_html = 0;
+  for (int i = 0; i < 100; i++)
+  {
+    memset(stack[i], '\0', 100);
+  }
+  while (1)
+  {
+    ch = fgetc(html);
+    /*If we reach the end of the file, we will write the latest data to an html file*/
+    if (ch == -1)
+    {
+      while (int i = count_tag_in_stack - 1; i >= 0)
+      {
+        char assist[500] = "";
+        strcpy(assist, stack[i]);
+        if (assist[1] != '/')
+        {
+          int j = strlen(assist);
+          while (j > 0)
+          {
+            assist[j] = assist[j - 1];
+            j--;
+          }
+          assist[1] = '/';
+        }
+        strcpy(output + len_output + 1, assist);
+        len_output += strlen(assist);
+        i--;
+      }
+      char name[500] = "";
+      snprintf(name, 500, "%s%i.html", "HTML-", number_html);
+      FILE* qw = fopen(name, "w");
+      fputs(output, qw);
+      fclose(qw);
+      break;
+    }
