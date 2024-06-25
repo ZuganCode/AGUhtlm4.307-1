@@ -9,6 +9,7 @@ Upon successful completion of the task, the function returns 1.*/
 
 
 int split_HTML(FILE* html, int max_len)
+
 {
   /*Dictionary for opening tags*/
   const char open_tag[8][9] = {"<p>", "<b>", "<i>", "<ol>", "<ul>", "<div>", "<span>", "<strong>" };
