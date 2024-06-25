@@ -59,6 +59,31 @@ void test_split_HTML_nested_tags() {
     remove("test_nested_tags.html");
 }
 
+// Test case: Splitting empty HTML file
+void test_split_HTML_empty_file() {
+    create_temp_html_file("test_empty_file.html", "");
+
+    // Test split_HTML function with an empty file
+    int result = split_HTML(fopen("test_empty_file.html", "r"), 100);
+    assert(result == 1 && "Empty HTML file splitting should succeed");
+
+    // Cleanup: remove the temporary file
+    remove("test_empty_file.html");
+}
+
+// Test case: Splitting HTML with no tags, only plain text
+void test_split_HTML_plain_text() {
+    const char* html_content = "This is plain text without any tags.";
+    create_temp_html_file("test_plain_text.html", html_content);
+
+    // Test split_HTML function with max_len larger than content size
+    int result = split_HTML(fopen("test_plain_text.html", "r"), 100);
+    assert(result == 1 && "Plain text HTML splitting should succeed");
+
+    // Cleanup: remove the temporary file
+    remove("test_plain_text.html");
+}
+
 int main() {
     // Run updated tests and provide feedback
     test_split_HTML_large_single_tag();
