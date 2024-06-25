@@ -35,6 +35,7 @@ int split_HTML(FILE* html, int max_len)
   {
     memset(stack[i], '\0', 100);
   }
+
   while (1)
   {
     ch = fgetc(html);
@@ -59,6 +60,7 @@ int split_HTML(FILE* html, int max_len)
         len_output += strlen(assist);
         i--;
       }
+      
       char name[500] = "";
       snprintf(name, 500, "%s%i.html", "HTML-", number_html);
       FILE* qw = fopen(name, "w");
