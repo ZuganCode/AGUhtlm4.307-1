@@ -66,6 +66,13 @@ int split_HTML(FILE* html, int max_len)
       fclose(qw);
       break;
     }
+        /*If we see "<", we start writing the tag to an auxiliary variable*/
+    else if (ch == '<')
+    {
+      is_tag_open = 1;
+      tag[ID_tag] = ch;
+      ID_tag++;
+    }
     /*If we see '>', we check if the tag is a block tag and, if necessary, put it on the stack*/
     else if (ch == '>')
     {
@@ -108,7 +115,15 @@ int split_HTML(FILE* html, int max_len)
         }
         i++;
       }
-
+      /*If the tag is not blocky and there is enough space in the buffer for it, write this tag to the buffer*/
+      if ((max_len - len_output) > (strlen(tag) + len_stack))
+      {
+        strcpy(output + len_output, tag);
+        len_output += strlen(tag);
+        ID_output += strlen(tag);
+        memset(tag, '\0', 500);
+        ID_tag = 0;
+      }
       /*If the tag is not blocky and there is not enough space in the buffer for it, write the contents of the buffer to an html file*/
       if ((max_len - len_output) <= (strlen(tag) + len_stack))
       {
