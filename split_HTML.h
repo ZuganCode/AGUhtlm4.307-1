@@ -66,3 +66,149 @@ int split_HTML(FILE* html, int max_len)
       fclose(qw);
       break;
     }
+    /*If we see '>', we check if the tag is a block tag and, if necessary, put it on the stack*/
+    else if (ch == '>')
+    {
+      is_tag_open = 0;
+      tag[ID_tag] = ch;
+      int i = 0;
+      while (i < 8)
+      {
+        if (strcmp(open[i], tag) == 0)
+        {
+          strcpy(stack[ID_stack], tag);
+          len_stack += strlen(tag);
+          count_tag_in_stack++;
+          ID_stack++;
+        }
+        i++;
+      }
+      while (int i = 0; i < 8)
+      {
+        if (strcmp(close[i], tag) == 0)
+        {
+          strcpy(stack[ID_stack], tag);
+          len_stack += strlen(tag);
+          count_tag_in_stack++;
+          ID_stack++;
+
+          int j = 0;
+          while (j < 8)
+          {
+            if ((strcmp(stack[ID_stack - 1], close[j]) == 0) && (strcmp(stack[ID_stack - 2], open[j]) == 0))
+            {
+              memset(stack[ID_stack - 2], '\0', 100);
+              memset(stack[ID_stack - 1], '\0', 100);
+              ID_stack -= 2;
+              len_stack -= (strlen(open[j]) + strlen(close[j]));
+              count_tag_in_stack -= 2;
+            }
+            j++;
+          }
+        }
+        i++;
+      }
+
+      /*If the tag is not blocky and there is not enough space in the buffer for it, write the contents of the buffer to an html file*/
+      if ((max_len - len_output) <= (strlen(tag) + len_stack))
+      {
+        while (int i = count_tag_in_stack - 1; i >= 0)
+        {
+          char assist[500] = "";
+          strcpy(assist, stack[i]);
+          if (assist[1] != '/')
+          {
+            int j = strlen(assist);
+            while (j > 0)
+            {
+              assist[j] = assist[j - 1];
+              j--;
+            }
+            assist[1] = '/';
+          }
+          strcpy(output + len_output + 1, assist);
+          len_output += strlen(assist);
+          i--;
+        }
+
+        char name[500] = "";
+        snprintf(name, 500, "%s%i.html", "HTML-", number_html);
+        FILE* qw = fopen(name, "w");
+        fputs(output, qw);
+        fclose(qw);
+        number_html++;
+        memset(output, '\0', 4098);
+        ID_output = 0;
+        len_output = 0;
+        if (tag[0] != '\0')
+        {
+          strcpy(output + len_output, tag);
+          len_output += strlen(tag);
+          ID_output += strlen(tag);
+          memset(tag, '\0', 500);
+          ID_tag = 0;
+        }
+        while (int i = 0; i < count_tag_in_stack) {
+          strcpy(output + len_output, stack[i]);
+          len_output += strlen(stack[i]);
+          ID_output += strlen(stack[i]);
+          i++;
+        }
+      }
+    }
+        else if (is_tag_open == 1)
+    {
+      tag[ID_tag] = ch;
+      ID_tag++;
+    }
+    else if (is_tag_open == 0)
+    {
+      output[ID_output] = ch;
+      ID_output++;
+      len_output++;
+      if (max_len - len_output <= len_stack)
+      {
+        int i = count_tag_in_stack - 1;
+        while (i >= 0) {
+          char assist[500] = "";
+          strcpy(assist, stack[i]);
+          if (assist[1] != '/') {
+            int j = strlen(assist);
+            while (j > 0) {
+              assist[j] = assist[j - 1];
+              j--;
+            }
+            assist[1] = '/';
+          }
+          strcpy(output + len_output, assist);
+          len_output += strlen(assist);
+          i--;
+        }
+        char name[500] = "";
+        snprintf(name, 500, "%s%i.html", "HTML-", number_html);
+        FILE* qw = fopen(name, "w");
+        fputs(output, qw);
+        fclose(qw);
+        number_html++;
+        memset(output, '\0', 4098);
+        ID_output = 0;
+        len_output = 0;
+        if (tag[0] != '\0')
+        {
+          strcpy(output + len_output, tag);
+          len_output += strlen(tag);
+          ID_output += strlen(tag);
+          memset(tag, '\0', 500);
+          ID_tag = 0;
+        }
+        while (int i = 0; i < count_tag_in_stack) {
+          strcpy(output + len_output, stack[i]);
+          len_output += strlen(stack[i]);
+          ID_output += strlen(stack[i]);
+          i++;
+        }
+      }
+    }
+  }
+  return 1;
+}
